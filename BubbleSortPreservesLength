@@ -1,0 +1,121 @@
+Inductive list : Type :=
+  | nil
+  | cons (n : nat) (l : list).
+  
+Inductive bool : Type :=
+  | true
+  | false.
+
+Notation " x :: y " := (cons x y).
+Notation " [ ] " := nil.
+Notation "[ x ; .. ; y ]" := (cons x .. (cons y nil) .. ).
+
+
+Fixpoint greater_than (n m : nat) : bool :=
+  match n, m with
+  | 0, _ => false
+  | S n0 , 0 => true
+  | S n0, S m0 => greater_than n0 m0
+  end.
+  
+Notation " x > y " := (greater_than x y).
+
+Fixpoint minus (l : list) (x: nat): list :=
+  match l, x with
+    | [], _ => []
+    | [a],_ => [a]
+    | l, 0 => l
+    | a :: b :: l0, S x0 => if a > b 
+                           then b :: minus (a :: l0) (x0)
+                           else a :: minus (b :: l0) (x0)
+  end.
+
+Fixpoint len (l:list) : nat :=
+  match l with
+  | nil => O
+  | h :: t => S (len t)
+  end.
+
+
+Fixpoint swap (l : list) (x: nat): list :=
+  match l, x with
+    | [], 0 => []
+    | [], S x' => []
+    | a :: l', 0 => a::l'
+    | a :: l', S x' => match l' with 
+                        | [] => [a]
+                        | b :: l'' => if a > b 
+                                     then b :: swap (a :: l'') (x')
+                                     else a :: swap (b :: l'') (x')
+                       end
+  end.
+
+Lemma swap_Sx : forall (l:list)(x: nat),
+  swap l (S x) = swap l x.
+Proof. Admitted.
+  
+Lemma IH2 : forall (l'' : list) (b x' : nat),
+  len (swap (b :: l'') (x')) = len (b :: l'').
+Proof. Admitted.
+
+Theorem len_swap : forall (l: list) (x: nat),
+  len(swap l x) = len l.
+Proof.
+   intros l x. destruct l as [| a l'].
+   - destruct x as [| x'].
+       -- (*case 1*) reflexivity.
+       -- (*case 2*) reflexivity.
+   - destruct x as [| x'].
+      --(*case 3*) reflexivity.
+      -- (*case 4*) induction l' as [| b l'' IH1].
+          --- (*case 4a*) reflexivity.
+          --- (*case 4b*) simpl. destruct (a > b).
+              ---- (*case 4b-1*) simpl. rewrite <- swap_Sx.
+                   rewrite -> IH1. reflexivity.
+              ---- (*case 4b-2*) simpl. 
+                   pose proof IH2 as IH2. rewrite -> IH2. reflexivity.
+   Qed.
+ 
+Lemma swap_nil : forall x: nat, swap [] x = [].
+Proof.
+  intros x. destruct x as [| x']. 
+  - simpl. reflexivity.
+  - simpl. reflexivity. 
+Qed.  
+
+Lemma swap_single : forall a x : nat, swap [a] x = [a].
+Proof.
+  intros a x. destruct x as [| x']. 
+    - simpl. reflexivity.
+    - simpl. reflexivity.
+Qed.
+  
+Lemma length_equal: forall (l:list)(a b: nat),
+  len (a::l) = len (b::l).
+Proof.
+  intros l a b. destruct l as [| c l'].
+  -reflexivity.
+  - simpl. reflexivity.
+Qed. 
+
+Fixpoint bubble_sort (l : list) : list :=
+  match l with
+  | [] => []
+  | x :: l0 => swap (x :: (bubble_sort l0)) (len l)
+  end.
+   
+Theorem bubble_sort_length : forall l : list,
+  length (bubble_sort l) = length l.
+Proof.
+  intros l.
+  induction l as [|x l' IHl].
+  - (* l = nil *)
+    simpl. reflexivity.
+  - (* l = cons x l' *)
+    simpl. rewrite <- IHl. unfold swap. 
+    induction l' as [|y l'' IHl'].
+    + (* l' = nil *)
+      simpl. reflexivity.
+    +  
+      simpl. unfold swap.
+Qed.
