@@ -105,17 +105,20 @@ Fixpoint bubble_sort (l : list) : list :=
   end.
    
 Theorem bubble_sort_length : forall l : list,
-  length (bubble_sort l) = length l.
+  len (bubble_sort l) = len l.
 Proof.
   intros l.
   induction l as [|x l' IHl].
-  - (* l = nil *)
+  - (* l = [] *)
     simpl. reflexivity.
-  - (* l = cons x l' *)
-    simpl. rewrite <- IHl. unfold swap. 
+  - (* l = x :: l' *)
+    simpl. rewrite <- IHl. unfold swap.
     induction l' as [|y l'' IHl'].
-    + (* l' = nil *)
+    + (* l' = [] *)
       simpl. reflexivity.
-    +  
-      simpl. unfold swap.
+    + simpl. destruct (x > y) eqn:Hxy.
+      * simpl. rewrite <- swap_Sx. rewrite <- len_swap. rewrite <- length_equal. reflexivity.
+      * simpl. rewrite <- length_equal. reflexivity.
 Qed.
+
+
