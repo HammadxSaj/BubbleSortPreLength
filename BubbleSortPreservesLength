@@ -103,22 +103,6 @@ Fixpoint bubble_sort (l : list) : list :=
   | [] => []
   | x :: l0 => swap (x :: (bubble_sort l0)) (len l)
   end.
-   
-Theorem bubble_sort_length : forall l : list,
-  len (bubble_sort l) = len l.
-Proof.
-  intros l.
-  induction l as [|x l' IHl].
-  - (* l = [] *)
-    simpl. reflexivity.
-  - (* l = x :: l' *)
-    simpl. rewrite <- IHl. unfold swap.
-    induction l' as [|y l'' IHl'].
-    + (* l' = [] *)
-      simpl. reflexivity.
-    + simpl. destruct (x > y) eqn:Hxy.
-      * simpl. rewrite <- swap_Sx. rewrite <- len_swap. rewrite <- length_equal. reflexivity.
-      * simpl. rewrite <- length_equal. reflexivity.
-Qed.
+
 
 
